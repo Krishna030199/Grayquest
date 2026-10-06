@@ -1,0 +1,112 @@
+{
+  "entities": {
+    "Lead": {
+      "title": "Lead",
+      "description": "Student education loan lead record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentName": { "type": "string" },
+        "parentName": { "type": "string" },
+        "phone": { "type": "string" },
+        "city": { "type": "string" },
+        "institutionId": { "type": "number" },
+        "institutionName": { "type": "string" },
+        "courseClass": { "type": "string" },
+        "loanAmount": { "type": "number" },
+        "source": { "type": "string", "enum": ["WALK_IN", "SCHOOL_EVENT", "REFERRAL", "CALL", "OTHER"] },
+        "assignedToId": { "type": "number" },
+        "assignedToName": { "type": "string" },
+        "stage": { "type": "string", "enum": ["NEW", "CONTACTED", "DOCUMENTS_PENDING", "APPLICATION_SUBMITTED", "APPROVED", "DISBURSED", "LOST"] },
+        "lostReason": { "type": "string" },
+        "nextFollowUpDate": { "type": "number" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["studentName", "parentName", "phone", "city", "loanAmount", "stage"]
+    },
+    "TeamMember": {
+      "title": "TeamMember",
+      "description": "Field sales team member or manager",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["MANAGER", "EXECUTIVE"] },
+        "phone": { "type": "string" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["name", "email", "role"]
+    },
+    "Institution": {
+      "title": "Institution",
+      "description": "Partner university, college or school",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "city": { "type": "string" },
+        "contactPerson": { "type": "string" },
+        "contactPhone": { "type": "string" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["name", "city"]
+    },
+    "LeadActivity": {
+      "title": "LeadActivity",
+      "description": "Audit and touchpoint activity log entry for a lead",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "leadId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorRole": { "type": "string" },
+        "actionType": { "type": "string" },
+        "description": { "type": "string" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["leadId", "authorName", "actionType", "description", "timestamp"]
+    },
+    "CampusVisit": {
+      "title": "CampusVisit",
+      "description": "Education institution field visit appointment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "institutionName": { "type": "string" },
+        "city": { "type": "string" },
+        "visitDate": { "type": "number" },
+        "executiveName": { "type": "string" },
+        "purpose": { "type": "string" },
+        "outcomeNotes": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["institutionName", "visitDate", "executiveName", "purpose"]
+    }
+  },
+  "firestore": {
+    "/leads/{leadId}": {
+      "schema": { "$ref": "#/entities/Lead" },
+      "description": "Global collection of student loan leads"
+    },
+    "/leads/{leadId}/activities/{activityId}": {
+      "schema": { "$ref": "#/entities/LeadActivity" },
+      "description": "Subcollection of audit activity entries for a lead"
+    },
+    "/team/{memberId}": {
+      "schema": { "$ref": "#/entities/TeamMember" },
+      "description": "Sales team members"
+    },
+    "/institutions/{instId}": {
+      "schema": { "$ref": "#/entities/Institution" },
+      "description": "Managed colleges and schools"
+    },
+    "/visits/{visitId}": {
+      "schema": { "$ref": "#/entities/CampusVisit" },
+      "description": "Field campus visits"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "GQ Field Hub",
+  "description": "Education-finance sales hub with role-based access, instant lead capture, follow-up tracking, and pipeline management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

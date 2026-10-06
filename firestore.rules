@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidLead(data) {
+      return data.keys().hasAll(['studentName', 'parentName', 'phone', 'city', 'loanAmount', 'stage'])
+        && data.studentName is string && data.studentName.size() > 0
+        && data.parentName is string && data.parentName.size() > 0
+        && data.phone is string && data.phone.size() >= 7
+        && data.city is string && data.city.size() > 0
+        && data.loanAmount is number && data.loanAmount >= 0
+        && data.stage in ['NEW', 'CONTACTED', 'DOCUMENTS_PENDING', 'APPLICATION_SUBMITTED', 'APPROVED', 'DISBURSED', 'LOST'];
+    }
+
+    function isValidActivity(data) {
+      return data.keys().hasAll(['leadId', 'authorName', 'actionType', 'description', 'timestamp'])
+        && data.leadId is string
+        && data.authorName is string
+        && data.actionType is string
+        && data.description is string
+        && data.timestamp is number;
+    }
+
+    function isValidInstitution(data) {
+      return data.keys().hasAll(['name', 'city'])
+        && data.name is string && data.name.size() > 0
+        && data.city is string && data.city.size() > 0;
+    }
+
+    function isValidTeamMember(data) {
+      return data.keys().hasAll(['name', 'email', 'role'])
+        && data.name is string && data.name.size() > 0
+        && data.email is string && data.email.size() > 0
+        && data.role in ['MANAGER', 'EXECUTIVE'];
+    }
+
+    function isValidVisit(data) {
+      return data.keys().hasAll(['institutionName', 'visitDate', 'executiveName', 'purpose'])
+        && data.institutionName is string
+        && data.visitDate is number
+        && data.executiveName is string
+        && data.purpose is string;
+    }
+
+    // Leads collection
+    match /leads/{leadId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidLead(request.resource.data);
+      allow update: if isAuthenticated() && isValidLead(request.resource.data);
+      allow delete: if isAuthenticated();
+
+      // Activities subcollection
+      match /activities/{activityId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && isValidActivity(request.resource.data);
+        allow update: if isAuthenticated() && isValidActivity(request.resource.data);
+        allow delete: if isAuthenticated();
+      }
+    }
+
+    // Team members
+    match /team/{memberId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && isValidTeamMember(request.resource.data);
+      allow delete: if isAuthenticated();
+    }
+
+    // Institutions
+    match /institutions/{instId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && isValidInstitution(request.resource.data);
+      allow delete: if isAuthenticated();
+    }
+
+    // Visits
+    match /visits/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && isValidVisit(request.resource.data);
+      allow delete: if isAuthenticated();
+    }
+  }
+}
